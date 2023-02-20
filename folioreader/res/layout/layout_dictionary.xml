@@ -56,14 +56,14 @@
                     android:textSize="16sp" />
 
                 <TextView
-                    android:id="@+id/btn_wikipedia"
+                    android:id="@+id/btn_google"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:background="@drawable/style_back_color_selector"
                     android:gravity="center"
                     android:padding="5dp"
-                    android:text="@string/wikipedia"
+                    android:text="@string/google"
                     android:textColor="@drawable/content_highlight_text_selector"
                     android:textSize="16sp" />
             </LinearLayout>
@@ -82,7 +82,7 @@
             android:layout_height="match_parent"
             android:scrollbars="vertical" />
 
-        <include layout="@layout/layout_wikipedia" />
+        <include layout="@layout/layout_google_search" />
 
         <ProgressBar
             android:id="@+id/progress"
