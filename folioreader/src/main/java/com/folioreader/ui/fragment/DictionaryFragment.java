@@ -1,8 +1,6 @@
 package com.folioreader.ui.fragment;
 
 import android.app.Dialog;
-import android.app.SearchManager;
-import android.content.Intent;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -33,7 +31,6 @@ import com.folioreader.ui.adapter.DictionaryAdapter;
 import com.folioreader.ui.base.DictionaryCallBack;
 import com.folioreader.ui.base.DictionaryTask;
 import com.folioreader.ui.base.WikipediaCallBack;
-import com.folioreader.ui.base.WikipediaTask;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.UiUtil;
 
@@ -46,7 +43,7 @@ import java.net.URLEncoder;
  */
 
 public class DictionaryFragment extends DialogFragment
-        implements DictionaryCallBack, WikipediaCallBack {
+        implements DictionaryCallBack {
 
     private static final String TAG = "DictionaryFragment";
 
@@ -54,11 +51,11 @@ public class DictionaryFragment extends DialogFragment
 
     private MediaPlayer mediaPlayer;
     private RecyclerView dictResults;
-    private TextView noNetwork, dictionary, wikipedia, wikiWord, def;
+    private TextView noNetwork, dictionary, googleSearch;
     private ProgressBar progressBar;
-    private Button googleSearch;
-    private LinearLayout wikiLayout;
-    private WebView wikiWebView;
+    private Button btnGoogleSearch;
+    private LinearLayout googleSearchLayout;
+    private WebView googleSearchWebView;
     private DictionaryAdapter mAdapter;
     private ImageView imageViewClose;
 
@@ -90,18 +87,16 @@ public class DictionaryFragment extends DialogFragment
         progressBar = (ProgressBar) view.findViewById(R.id.progress);
         dictResults = (RecyclerView) view.findViewById(R.id.rv_dict_results);
 
-        googleSearch = (Button) view.findViewById(R.id.btn_google_search);
+        btnGoogleSearch = (Button) view.findViewById(R.id.btn_google_search);
         dictionary = (TextView) view.findViewById(R.id.btn_dictionary);
-        wikipedia = (TextView) view.findViewById(R.id.btn_wikipedia);
+        googleSearch = (TextView) view.findViewById(R.id.btn_google);
 
-        wikiLayout = (LinearLayout) view.findViewById(R.id.ll_wiki);
-        wikiWord = (TextView) view.findViewById(R.id.tv_word);
-        def = (TextView) view.findViewById(R.id.tv_def);
-        wikiWebView = (WebView) view.findViewById(R.id.wv_wiki);
-        wikiWebView.getSettings().setLoadsImagesAutomatically(true);
-        wikiWebView.setWebViewClient(new WebViewClient());
-        wikiWebView.getSettings().setJavaScriptEnabled(true);
-        wikiWebView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
+        googleSearchLayout = (LinearLayout) view.findViewById(R.id.ll_google);
+        googleSearchWebView = (WebView) view.findViewById(R.id.wv_google);
+        googleSearchWebView.getSettings().setLoadsImagesAutomatically(true);
+        googleSearchWebView.setWebViewClient(new WebViewClient());
+        googleSearchWebView.getSettings().setJavaScriptEnabled(true);
+        googleSearchWebView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
 
         dictionary.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,19 +105,17 @@ public class DictionaryFragment extends DialogFragment
             }
         });
 
-        wikipedia.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loadWikipedia();
-            }
-        });
-
         googleSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
-                intent.putExtra(SearchManager.QUERY, word);
-                startActivity(intent);
+                loadGoogleSearch();
+            }
+        });
+
+        btnGoogleSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadGoogleSearch();
             }
         });
 
@@ -146,50 +139,44 @@ public class DictionaryFragment extends DialogFragment
         Config config = AppUtil.getSavedConfig(getContext());
         assert config != null;
         assert getContext() != null;
-        final int themeColor = config.getCurrentThemeColor();
+        final int themeColor = config.getThemeColor();
 
         UiUtil.setColorIntToDrawable(themeColor, imageViewClose.getDrawable());
         LinearLayout layoutHeader = view.findViewById(R.id.layout_header);
         layoutHeader.setBackgroundDrawable(UiUtil.getShapeDrawable(themeColor));
         UiUtil.setColorIntToDrawable(themeColor, progressBar.getIndeterminateDrawable());
-        UiUtil.setShapeColor(googleSearch, themeColor);
+        UiUtil.setShapeColor(btnGoogleSearch, themeColor);
 
         if (config.isNightMode()) {
             view.findViewById(R.id.toolbar).setBackgroundColor(Color.BLACK);
             view.findViewById(R.id.contentView).setBackgroundColor(Color.BLACK);
             dictionary.setBackgroundDrawable(UiUtil.createStateDrawable(themeColor, Color.BLACK));
-            wikipedia.setBackgroundDrawable(UiUtil.createStateDrawable(themeColor, Color.BLACK));
+            googleSearch.setBackgroundDrawable(UiUtil.createStateDrawable(themeColor, Color.BLACK));
             dictionary.setTextColor(UiUtil.getColorList(Color.BLACK, themeColor));
-            wikipedia.setTextColor(UiUtil.getColorList(Color.BLACK, themeColor));
+            googleSearch.setTextColor(UiUtil.getColorList(Color.BLACK, themeColor));
             int nightTextColor = ContextCompat.getColor(getContext(), R.color.night_text_color);
-            wikiWord.setTextColor(nightTextColor);
-            wikiWord.setBackgroundColor(Color.BLACK);
-            def.setTextColor(nightTextColor);
-            def.setBackgroundColor(Color.BLACK);
             noNetwork.setTextColor(nightTextColor);
 
         } else {
             view.findViewById(R.id.contentView).setBackgroundColor(Color.WHITE);
             dictionary.setTextColor(UiUtil.getColorList(Color.WHITE, themeColor));
-            wikipedia.setTextColor(UiUtil.getColorList(Color.WHITE, themeColor));
+            googleSearch.setTextColor(UiUtil.getColorList(Color.WHITE, themeColor));
             dictionary.setBackgroundDrawable(UiUtil.createStateDrawable(themeColor, Color.WHITE));
-            wikipedia.setBackgroundDrawable(UiUtil.createStateDrawable(themeColor, Color.WHITE));
-            wikiWord.setBackgroundColor(Color.WHITE);
-            def.setBackgroundColor(Color.WHITE);
-            googleSearch.setTextColor(Color.WHITE);
+            googleSearch.setBackgroundDrawable(UiUtil.createStateDrawable(themeColor, Color.WHITE));
+            btnGoogleSearch.setTextColor(Color.WHITE);
         }
     }
 
     private void loadDictionary() {
-        if (noNetwork.getVisibility() == View.VISIBLE || googleSearch.getVisibility() == View.VISIBLE) {
+        if (noNetwork.getVisibility() == View.VISIBLE || btnGoogleSearch.getVisibility() == View.VISIBLE) {
             noNetwork.setVisibility(View.GONE);
-            googleSearch.setVisibility(View.GONE);
+            btnGoogleSearch.setVisibility(View.GONE);
         }
-        wikiWebView.loadUrl("about:blank");
+        googleSearchWebView.loadUrl("about:blank");
         mAdapter.clear();
         dictionary.setSelected(true);
-        wikipedia.setSelected(false);
-        wikiLayout.setVisibility(View.GONE);
+        googleSearch.setSelected(false);
+        googleSearchLayout.setVisibility(View.GONE);
         dictResults.setVisibility(View.VISIBLE);
         DictionaryTask task = new DictionaryTask(this);
         String urlString = null;
@@ -201,33 +188,27 @@ public class DictionaryFragment extends DialogFragment
         task.execute(urlString);
     }
 
-    private void loadWikipedia() {
-        if (noNetwork.getVisibility() == View.VISIBLE || googleSearch.getVisibility() == View.VISIBLE) {
+    private void loadGoogleSearch() {
+        if (noNetwork.getVisibility() == View.VISIBLE || btnGoogleSearch.getVisibility() == View.VISIBLE) {
             noNetwork.setVisibility(View.GONE);
-            googleSearch.setVisibility(View.GONE);
+            btnGoogleSearch.setVisibility(View.GONE);
         }
-        wikiWebView.loadUrl("about:blank");
+        googleSearchWebView.loadUrl("about:blank");
         mAdapter.clear();
-        wikiLayout.setVisibility(View.VISIBLE);
+        googleSearchLayout.setVisibility(View.VISIBLE);
         dictResults.setVisibility(View.GONE);
         dictionary.setSelected(false);
-        wikipedia.setSelected(true);
-        WikipediaTask task = new WikipediaTask(this);
-        String urlString = null;
-        try {
-            urlString = Constants.WIKIPEDIA_API_URL + URLEncoder.encode(word, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            Log.e(TAG, "-> loadWikipedia", e);
-        }
-        task.execute(urlString);
+        googleSearch.setSelected(true);
+        googleSearchWebView.loadUrl(Constants.GOOGLE_API_URL + word);
+        progressBar.setVisibility(View.GONE);
     }
 
     @Override
     public void onError() {
         noNetwork.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.GONE);
-        noNetwork.setText("offline");
-        googleSearch.setVisibility(View.GONE);
+        noNetwork.setText("Not available");
+        btnGoogleSearch.setVisibility(View.GONE);
     }
 
     @Override
@@ -235,27 +216,12 @@ public class DictionaryFragment extends DialogFragment
         progressBar.setVisibility(View.GONE);
         if (dictionary.getResults().isEmpty()) {
             noNetwork.setVisibility(View.VISIBLE);
-            googleSearch.setVisibility(View.VISIBLE);
+            btnGoogleSearch.setVisibility(View.VISIBLE);
             noNetwork.setText("Word not found");
         } else {
             mAdapter.setResults(dictionary.getResults());
             dictResults.setAdapter(mAdapter);
         }
-    }
-
-    @Override
-    @SuppressWarnings("PMD.InefficientEmptyStringCheck")
-    public void onWikipediaDataReceived(Wikipedia wikipedia) {
-        wikiWord.setText(wikipedia.getWord());
-        if (wikipedia.getDefinition().trim().isEmpty()) {
-            def.setVisibility(View.GONE);
-        } else {
-            String definition = "\"" +
-                    wikipedia.getDefinition() +
-                    "\"";
-            def.setText(definition);
-        }
-        wikiWebView.loadUrl(wikipedia.getLink());
     }
 
     //TODO
