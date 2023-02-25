@@ -103,6 +103,10 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
     public void deleteHighlight(int id) {
         if (HighLightTable.deleteHighlight(id)) {
             EventBus.getDefault().post(new UpdateHighlightEvent());
+            HighlightUtil.sendHighlightBroadcastEvent(
+                    HighlightFragment.this.getActivity().getApplicationContext(),
+                    new HighlightImpl(id),
+                    HighLight.HighLightAction.DELETE);
         }
     }
 

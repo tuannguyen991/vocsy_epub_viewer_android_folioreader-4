@@ -126,6 +126,9 @@ public class HighlightImpl implements Parcelable, HighLight {
     public HighlightImpl() {
     }
 
+    public HighlightImpl(int id) {
+    }
+
     protected HighlightImpl(Parcel in) {
         readFromParcel(in);
     }
