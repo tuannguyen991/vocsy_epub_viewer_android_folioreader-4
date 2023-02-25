@@ -253,17 +253,20 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
         if (requestCode == 100) {
             if (resultCode == 100) {
                 String note = data.getStringExtra("bitmap");
-                Bitmap bit = BitmapFactory.decodeFile(note);
-                note = "<img>" + DataTypeConversionUtil.bitmapToString(bit);
                 if (!TextUtils.isEmpty(note)) {
-                    curHighlightImpl.setNote(note);
-                    if (HighLightTable.updateHighlight(curHighlightImpl)) {
-                        HighlightUtil.sendHighlightBroadcastEvent(
-                                HighlightFragment.this.getActivity().getApplicationContext(),
-                                curHighlightImpl,
-                                HighLight.HighLightAction.MODIFY);
-                        adapter.editNote(note, curPosition);
-                    }
+                    Bitmap bit = BitmapFactory.decodeFile(note);
+                    note = "<img>" + DataTypeConversionUtil.bitmapToString(bit);
+                }
+                curHighlightImpl.setNote(note);
+                if (HighLightTable.updateHighlight(curHighlightImpl)) {
+                    HighlightUtil.sendHighlightBroadcastEvent(
+                            HighlightFragment.this.getActivity().getApplicationContext(),
+                            curHighlightImpl,
+                            HighLight.HighLightAction.MODIFY);
+                    adapter.editNote(note, curPosition);
+                }
+                if (TextUtils.isEmpty(note)) {
+                    getFragmentManager().beginTransaction().detach(this).attach(this).commit();
                 }
             }
         }

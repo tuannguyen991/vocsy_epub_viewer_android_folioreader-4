@@ -158,8 +158,13 @@ public class PaintView extends View {
     }
 
     public void clear() {
+        curBit = Bitmap.createBitmap(mCanvas.getWidth(), mCanvas.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas emptyCanvas = new Canvas(curBit);
+        emptyCanvas.drawColor(DEFAULT_BG_COLOR);
+        emptyCanvas.drawBitmap(curBit, 0, 0, mBitmapPaint);
         backgroundColor = DEFAULT_BG_COLOR;
-        mCanvas.drawColor(backgroundColor);
+        mCanvas.drawColor(DEFAULT_BG_COLOR);
+        mCanvas.save();
         paths.clear();
         invalidate();
     }
@@ -191,30 +196,34 @@ public class PaintView extends View {
     }
 
     public void saveImage() {
-        String mPath = getActivity().getApplicationContext().getExternalFilesDir(null) + "/epubviewer/draw.jpg";
-        File image = new File(mPath);
-        if (!image.exists())
-            image.getParentFile().mkdir();
-        FileOutputStream fileOutputStream;
-        try {
-            fileOutputStream = new FileOutputStream(image);
+        String mPath = "";
+        Bitmap emptyBitmap = Bitmap.createBitmap(mCanvas.getWidth(), mCanvas.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas emptyCanvas = new Canvas(emptyBitmap);
+        emptyCanvas.drawColor(DEFAULT_BG_COLOR);
+        emptyCanvas.drawBitmap(emptyBitmap, 0, 0, mBitmapPaint);
+        if (!mBitmap.sameAs(emptyBitmap)){
+            mPath = getActivity().getApplicationContext().getExternalFilesDir(null) + "/epubviewer/draw.jpg";
+            File image = new File(mPath);
+            if (!image.exists())
+                image.getParentFile().mkdir();
+            FileOutputStream fileOutputStream;
+            try {
+                fileOutputStream = new FileOutputStream(image);
+                mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
+                fileOutputStream.flush();
+                fileOutputStream.close();
+            } catch (FileNotFoundException e) {
 
-            mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
+            } catch (IOException e) {
 
-            fileOutputStream.flush();
-            fileOutputStream.close();
-
-            Intent intent = new Intent();
-            intent.putExtra("bitmap", mPath);
-            Activity activity = getActivity();
-            if (activity != null) {
-                activity.setResult(100, intent);
-                activity.finish();
             }
-        } catch (FileNotFoundException e) {
-
-        } catch (IOException e) {
-
+        }
+        Intent intent = new Intent();
+        intent.putExtra("bitmap", mPath);
+        Activity activity = getActivity();
+        if (activity != null) {
+            activity.setResult(100, intent);
+            activity.finish();
         }
     }
 
