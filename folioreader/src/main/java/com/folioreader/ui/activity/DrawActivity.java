@@ -41,6 +41,7 @@ public class DrawActivity extends AppCompatActivity {
         button = findViewById(R.id.change_color_button);
         DisplayMetrics displayMetrics = new DisplayMetrics();
         SeekBar seekBar = findViewById(R.id.seekBar);
+        seekBar.setProgress(10);
         final TextView textView = findViewById(R.id.current_pen_size);
 
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
