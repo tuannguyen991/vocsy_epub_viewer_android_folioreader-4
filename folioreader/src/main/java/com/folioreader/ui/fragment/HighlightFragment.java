@@ -1,8 +1,11 @@
 package com.folioreader.ui.fragment;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -27,18 +30,25 @@ import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.event.UpdateHighlightEvent;
 import com.folioreader.model.sqlite.HighLightTable;
+import com.folioreader.ui.activity.DrawActivity;
 import com.folioreader.ui.adapter.HighlightAdapter;
 import com.folioreader.util.AppUtil;
+import com.folioreader.util.DataTypeConversionUtil;
 import com.folioreader.util.HighlightUtil;
 
 import org.greenrobot.eventbus.EventBus;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import android.graphics.Bitmap;
 
 public class HighlightFragment extends Fragment implements HighlightAdapter.HighLightAdapterCallback {
     private static final String HIGHLIGHT_ITEM = "highlight_item";
     private View mRootView;
     private HighlightAdapter adapter;
     private String mBookId;
-
+    private HighlightImpl curHighlightImpl;
+    private int curPosition;
 
     public static HighlightFragment newInstance(String bookId, String epubTitle) {
         HighlightFragment highlightFragment = new HighlightFragment();
@@ -98,6 +108,58 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
 
     @Override
     public void editNote(final HighlightImpl highlightImpl, final int position) {
+        this.curHighlightImpl = highlightImpl;
+        this.curPosition = position;
+        final AlertDialog.Builder optionDialog = new AlertDialog.Builder(getActivity());
+        HighLight.NoteOption option = highlightImpl.getNoteOption();
+        if (option == HighLight.NoteOption.NONE) {
+            optionDialog.setTitle("Pick a note type")
+                    .setItems(new String[]{"Text", "Draw", "Webview"}, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int option) {
+                            switch (option){
+                                case 0:
+                                    editNoteText(highlightImpl, position);
+                                    break;
+                                case 1:
+                                    editNoteDraw(highlightImpl, position);
+                                    break;
+                                case 2:
+                                default:
+                                    //editNoteWeb(highlightImpl, position);
+                            }
+                        }
+                    });
+        }
+        else if (option == HighLight.NoteOption.TEXT) {
+            optionDialog.setTitle("Pick a note type")
+                    .setItems(new String[]{"Text", "Clear note"}, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dial, int option) {
+                            if (option == 0) {
+                                editNoteText(highlightImpl, position);
+                            }
+                            else if (option == 1) {
+                                editNoteClear(highlightImpl, position);
+                            }
+                        }
+                    });
+        }
+        else {
+            optionDialog.setTitle("Pick a note type")
+                    .setItems(new String[]{"Draw", "Clear note"}, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dial, int option) {
+                            if (option == 0) {
+                                editNoteDraw(highlightImpl, position);
+                            }
+                            else if (option == 1) {
+                                editNoteClear(highlightImpl, position);
+                            }
+                        }
+                    });
+        }
+        optionDialog.create().show();
+    }
+
+    public void editNoteText(final HighlightImpl highlightImpl, final int position) {
         final Dialog dialog = new Dialog(getActivity(), R.style.DialogCustomTheme);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_edit_notes);
@@ -128,6 +190,78 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
                 }
             }
         });
+    }
+
+    private void editNoteDraw(final HighlightImpl highlightImpl, final int position) {
+        Intent intent = new Intent(getActivity(), DrawActivity.class);
+        String noteText = highlightImpl.getNote();
+        if (noteText != null) {
+            if (noteText.length() > 5) {
+                if (noteText.substring(0, 5).compareTo("<img>") == 0) {
+                    Bitmap bit = DataTypeConversionUtil.stringToBitmap(noteText.substring(5));
+
+                    String mPath = getActivity().getApplicationContext().getExternalFilesDir(null) + "/epubviewer/draw.jpg";
+                    File imageFile = new File(mPath);
+                    if (!imageFile.exists())
+                        imageFile.getParentFile().mkdir();
+                    try {
+                        FileOutputStream outputStream = new FileOutputStream(imageFile);
+                        int quality = 100;
+                        bit.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+                        outputStream.flush();
+                        outputStream.close();
+
+                        intent.putExtra("bitmap", mPath);
+                    } catch (Throwable e) {
+                        // Several error may come out with file handling or DOM
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        startActivityForResult(intent, 100);
+    }
+
+    private void editNoteClear(final HighlightImpl highlightImpl, final int position) {
+        String note = null;
+        highlightImpl.setNote(note);
+        if (HighLightTable.updateHighlight(highlightImpl)) {
+            HighlightUtil.sendHighlightBroadcastEvent(
+                    HighlightFragment.this.getActivity().getApplicationContext(),
+                    highlightImpl,
+                    HighLight.HighLightAction.MODIFY);
+            adapter.editNote(note, position);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 100) {
+            if (resultCode == 100) {
+                String note = data.getStringExtra("bitmap");
+                Bitmap bit = BitmapFactory.decodeFile(note);
+                note = "<img>" + DataTypeConversionUtil.bitmapToString(bit);
+                if (!TextUtils.isEmpty(note)) {
+                    curHighlightImpl.setNote(note);
+                    if (HighLightTable.updateHighlight(curHighlightImpl)) {
+                        HighlightUtil.sendHighlightBroadcastEvent(
+                                HighlightFragment.this.getActivity().getApplicationContext(),
+                                curHighlightImpl,
+                                HighLight.HighLightAction.MODIFY);
+                        adapter.editNote(note, curPosition);
+                    }
+                }
+            }
+        }
+        else if (requestCode == 200){
+            if (resultCode == 200) {
+                String img = data.getStringExtra("bitmap");
+                Intent intent = new Intent(getActivity(), DrawActivity.class);
+                intent.putExtra("bitmap", img);
+                startActivityForResult(intent, 100);
+            }
+        }
     }
 }
 

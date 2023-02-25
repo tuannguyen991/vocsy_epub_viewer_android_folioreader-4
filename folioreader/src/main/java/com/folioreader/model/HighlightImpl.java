@@ -2,6 +2,7 @@ package com.folioreader.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import java.util.Date;
 
@@ -195,6 +196,20 @@ public class HighlightImpl implements Parcelable, HighLight {
 
     public String getNote() {
         return note;
+    }
+
+    public NoteOption getNoteOption() {
+        String currentNote = this.getNote();
+        NoteOption option = NoteOption.NONE;
+        if (currentNote != null) {
+            if (!TextUtils.isEmpty(currentNote)) {
+                option = NoteOption.TEXT;
+                if (currentNote.length() > 5 && currentNote.substring(0, 5).compareTo("<img>") == 0) {
+                    option = NoteOption.DRAW;
+                }
+            }
+        }
+        return option;
     }
 
     public String getUUID() {
