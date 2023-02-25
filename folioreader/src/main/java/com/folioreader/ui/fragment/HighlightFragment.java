@@ -235,6 +235,7 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
                     highlightImpl,
                     HighLight.HighLightAction.MODIFY);
             adapter.editNote(note, position);
+            getFragmentManager().beginTransaction().detach(this).attach(this).commit();
         }
     }
 
