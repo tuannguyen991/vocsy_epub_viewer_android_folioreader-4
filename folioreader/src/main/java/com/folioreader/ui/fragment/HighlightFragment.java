@@ -31,6 +31,7 @@ import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.event.UpdateHighlightEvent;
 import com.folioreader.model.sqlite.HighLightTable;
 import com.folioreader.ui.activity.DrawActivity;
+import com.folioreader.ui.activity.MiniBrowserActivity;
 import com.folioreader.ui.adapter.HighlightAdapter;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.DataTypeConversionUtil;
@@ -129,7 +130,7 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
                                     break;
                                 case 2:
                                 default:
-                                    //editNoteWeb(highlightImpl, position);
+                                    editNoteWeb(highlightImpl, position);
                             }
                         }
                     });
@@ -224,6 +225,13 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
             }
         }
         startActivityForResult(intent, 100);
+    }
+
+    private void editNoteWeb(final HighlightImpl highlightImpl, final int position) {
+        Intent intent = new Intent(getActivity(), MiniBrowserActivity.class);
+        String noteText = highlightImpl.getContent();
+        intent.putExtra("word", noteText);
+        startActivityForResult(intent, 200);
     }
 
     private void editNoteClear(final HighlightImpl highlightImpl, final int position) {
