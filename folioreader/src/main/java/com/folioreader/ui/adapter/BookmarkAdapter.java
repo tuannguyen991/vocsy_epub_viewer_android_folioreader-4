@@ -31,7 +31,7 @@ import java.util.Map;
 
 public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.BookmarkHolder> {
 
-    private ArrayList<HashMap>  bookmarks;
+    private ArrayList<HashMap> bookmarks;
     private BookmarkAdapter.BookmarkAdapterCallback callback;
     private Context context;
     private Config config;
@@ -74,7 +74,7 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.Bookma
         holder.delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                callback.deleteBookmark(bookmarks.get(position).get("date").toString(), bookmarks.get(position).get("name").toString() );
+                callback.deleteBookmark(bookmarks.get(position).get("date").toString(), bookmarks.get(position).get("name").toString());
                 bookmarks.remove(position);
                 notifyDataSetChanged();
 
@@ -122,7 +122,6 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.Bookma
 
         return bookmarks.get(position);
     }
-
 
     static class BookmarkHolder extends RecyclerView.ViewHolder {
         private UnderlinedTextView content;

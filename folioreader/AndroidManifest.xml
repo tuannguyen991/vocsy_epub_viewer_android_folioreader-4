@@ -12,11 +12,13 @@
         android:allowBackup="true"
         android:networkSecurityConfig="@xml/network_security_config"
         tools:replace="android:allowBackup">
-
         <provider
             android:name=".AppContext"
             android:authorities="${applicationId}.provider.appcontext"
             android:exported="false" />
+
+        <activity android:name=".ui.activity.DrawActivity"></activity>
+        <activity android:name=".ui.activity.MiniBrowserActivity"></activity>
 
         <activity
             android:name="com.folioreader.ui.activity.FolioActivity"

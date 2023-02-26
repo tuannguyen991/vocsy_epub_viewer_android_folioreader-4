@@ -23,6 +23,7 @@ public class HighlightData implements HighLight {
     private String rangy;
     private String uuid;
     private String note;
+    private NoteOption noteOption;
 
     @Override
     public String toString() {
@@ -82,5 +83,10 @@ public class HighlightData implements HighLight {
     @Override
     public String getNote() {
         return note;
+    }
+
+    @Override
+    public NoteOption getNoteOption() {
+        return noteOption;
     }
 }

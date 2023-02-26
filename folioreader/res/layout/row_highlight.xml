@@ -65,5 +65,12 @@
             android:text=""
             android:textColor="@color/black"
             android:textSize="14sp" />
+
+        <ImageView
+            android:id="@+id/iv_note"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_below="@+id/tv_note"
+            android:ellipsize="end" />
     </RelativeLayout>
 </com.daimajia.swipe.SwipeLayout>

@@ -17,6 +17,10 @@ public interface HighLight {
         NEW, DELETE, MODIFY
     }
 
+    enum NoteOption {
+        NONE, TEXT, DRAW, WEBVIEW
+    }
+
     /**
      * <p> Returns Book id, which can be provided to intent to folio reader, if not provided id is
      * used from epub's dc:identifier field in metadata.
@@ -71,4 +75,5 @@ public interface HighLight {
      * Returns Note linked to the highlight (optional)
      */
     String getNote();
+    NoteOption getNoteOption();
 }

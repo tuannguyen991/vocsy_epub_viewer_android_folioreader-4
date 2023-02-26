@@ -186,9 +186,24 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     public void onHighlight(HighLight highlight, HighLight.HighLightAction type) {
-        Toast.makeText(this,
-                "highlight id = " + highlight.getUUID() + " type = " + type,
-                Toast.LENGTH_SHORT).show();
+        switch (type){
+            case NEW:
+                Toast.makeText(this,
+                        "Create highlight successfully!",
+                        Toast.LENGTH_SHORT).show();
+                break;
+            case MODIFY:
+                Toast.makeText(this,
+                        "Modify highlight successfully!",
+                        Toast.LENGTH_SHORT).show();
+                break;
+            case DELETE:
+            default:
+                Toast.makeText(this,
+                        "Delete highlight successfully!",
+                        Toast.LENGTH_SHORT).show();
+                break;
+        }
     }
 
     @Override
