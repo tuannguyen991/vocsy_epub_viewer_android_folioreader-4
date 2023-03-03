@@ -293,7 +293,6 @@ $(function () {
 
         highlightSelection: function (color) {
             try {
-
                 this.highlighter.highlightSelection(color, null);
                 var range = window.getSelection().toString();
                 var params = {content: range, rangy: this.getHighlights(), color: color};
@@ -764,12 +763,15 @@ function getSelectionRect(element) {
     console.log("-> getSelectionRect");
 
     var range;
+    FolioWebView.setIsHighlighted(element !== undefined);
     if (element !== undefined) {
         range = document.createRange();
         range.selectNodeContents(element);
     } else {
         range = window.getSelection().getRangeAt(0);
     }
+
+    thisHighlight = element;
 
     //var rect = range.getBoundingClientRect();
     var rect = RangeFix.getBoundingClientRect(range);

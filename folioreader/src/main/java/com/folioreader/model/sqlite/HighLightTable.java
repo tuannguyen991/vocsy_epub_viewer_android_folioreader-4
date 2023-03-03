@@ -183,7 +183,7 @@ public class HighLightTable {
     private static boolean update(int id, String s, String color) {
         HighlightImpl highlightImpl = getHighlightId(id);
         highlightImpl.setRangy(s);
-        highlightImpl.setType(color);
+        highlightImpl.setType("highlight_" + color);
         return DbAdapter.updateHighLight(getHighlightContentValues(highlightImpl), String.valueOf(id));
     }
 
