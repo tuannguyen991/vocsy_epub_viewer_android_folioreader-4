@@ -109,6 +109,7 @@ class FolioWebView : WebView {
     private var calculatedProgress = 0.0
 
     private var lastScrollType: LastScrollType? = null
+    private var isHighlighted: Boolean = false
 
     val contentHeightVal: Int
         get() = floor((this.contentHeight * this.scale).toDouble()).toInt()
@@ -302,23 +303,23 @@ class FolioWebView : WebView {
 
         viewTextSelection.yellowHighlight.setOnClickListener {
             Log.v(LOG_TAG, "-> onClick -> yellowHighlight")
-            onHighlightColorItemsClicked(HighlightStyle.Yellow, false)
+            onHighlightColorItemsClicked(HighlightStyle.Yellow, this.isHighlighted)
         }
         viewTextSelection.greenHighlight.setOnClickListener {
             Log.v(LOG_TAG, "-> onClick -> greenHighlight")
-            onHighlightColorItemsClicked(HighlightStyle.Green, false)
+            onHighlightColorItemsClicked(HighlightStyle.Green, this.isHighlighted)
         }
         viewTextSelection.blueHighlight.setOnClickListener {
             Log.v(LOG_TAG, "-> onClick -> blueHighlight")
-            onHighlightColorItemsClicked(HighlightStyle.Blue, false)
+            onHighlightColorItemsClicked(HighlightStyle.Blue, this.isHighlighted)
         }
         viewTextSelection.pinkHighlight.setOnClickListener {
             Log.v(LOG_TAG, "-> onClick -> pinkHighlight")
-            onHighlightColorItemsClicked(HighlightStyle.Pink, false)
+            onHighlightColorItemsClicked(HighlightStyle.Pink, this.isHighlighted)
         }
         viewTextSelection.underlineHighlight.setOnClickListener {
             Log.v(LOG_TAG, "-> onClick -> underlineHighlight")
-            onHighlightColorItemsClicked(HighlightStyle.Underline, false)
+            onHighlightColorItemsClicked(HighlightStyle.Underline, this.isHighlighted)
         }
 
         viewTextSelection.deleteHighlight.setOnClickListener {
@@ -870,6 +871,10 @@ class FolioWebView : WebView {
         } else {
             Log.v(LOG_TAG, "-> doNotShowTextSelectionPopup")
         }
+    }
 
+    @JavascriptInterface
+    public fun setIsHighlighted(isHighlighted: Boolean){
+        this.isHighlighted = isHighlighted;
     }
 }
