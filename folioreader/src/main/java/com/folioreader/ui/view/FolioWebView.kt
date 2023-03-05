@@ -17,6 +17,7 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.webkit.ConsoleMessage
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
+import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -850,6 +851,11 @@ class FolioWebView : WebView {
                 if (oldScrollX == currentScrollX && oldScrollY == currentScrollY && !inTouchMode) {
                     Log.i(LOG_TAG, "-> Stopped scrolling, show Popup")
                     popupWindow.dismiss()
+                    if (isHighlighted){
+                        viewTextSelection.noteSelection.setVisibility(View.VISIBLE);
+                    } else {
+                        viewTextSelection.noteSelection.setVisibility(View.GONE);
+                    }
                     popupWindow = PopupWindow(viewTextSelection, WRAP_CONTENT, WRAP_CONTENT)
                     popupWindow.isClippingEnabled = false
                     popupWindow.showAtLocation(
