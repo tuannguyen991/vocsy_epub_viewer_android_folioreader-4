@@ -341,6 +341,10 @@ class FolioWebView : WebView {
             dismissPopupWindow()
             loadUrl("javascript:onTextSelectionItemClicked(${it.id})")
         }
+        viewTextSelection.noteSelection.setOnClickListener {
+            dismissPopupWindow()
+            loadUrl("javascript:onTextSelectionItemClicked(${it.id})")
+        }
     }
 
     @JavascriptInterface
@@ -360,6 +364,11 @@ class FolioWebView : WebView {
                 UiUtil.share(context, selectedText)
             }
             R.id.defineSelection -> {
+                Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> defineSelection -> $selectedText")
+                uiHandler.post { showDictDialog(selectedText) }
+            }
+            R.id.noteSelection -> {
+                // copy from defineSelection
                 Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> defineSelection -> $selectedText")
                 uiHandler.post { showDictDialog(selectedText) }
             }
