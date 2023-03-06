@@ -1,6 +1,10 @@
 package com.folioreader.ui.view
 
+import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Context
+import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
@@ -8,6 +12,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.TextUtils
 import android.util.AttributeSet
 import android.util.DisplayMetrics
 import android.util.Log
@@ -17,7 +22,7 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.webkit.ConsoleMessage
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
-import android.widget.LinearLayout
+import android.widget.EditText
 import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -28,21 +33,28 @@ import com.folioreader.Constants
 import com.folioreader.R
 import com.folioreader.model.DisplayUnit
 import com.folioreader.model.HighLight
+import com.folioreader.model.HighLight.NoteOption
+import com.folioreader.model.HighlightImpl
 import com.folioreader.model.HighlightImpl.HighlightStyle
 import com.folioreader.model.sqlite.HighLightTable
+import com.folioreader.ui.activity.DrawActivity
 import com.folioreader.ui.activity.FolioActivity
 import com.folioreader.ui.activity.FolioActivityCallback
 import com.folioreader.ui.fragment.DictionaryFragment
 import com.folioreader.ui.fragment.FolioPageFragment
 import com.folioreader.util.AppUtil
+import com.folioreader.util.DataTypeConversionUtil
 import com.folioreader.util.HighlightUtil
 import com.folioreader.util.UiUtil
 import dalvik.system.PathClassLoader
 import kotlinx.android.synthetic.main.text_selection.view.*
 import org.json.JSONObject
 import org.springframework.util.ReflectionUtils
+import java.io.File
+import java.io.FileOutputStream
 import java.lang.ref.WeakReference
 import kotlin.math.floor
+import androidx.fragment.app.Fragment
 
 /**
  * @author by mahavir on 3/31/16.
@@ -344,7 +356,7 @@ class FolioWebView : WebView {
         }
         viewTextSelection.noteSelection.setOnClickListener {
             dismissPopupWindow()
-            loadUrl("javascript:onTextSelectionItemClicked(${it.id})")
+            loadUrl("javascript:editNote()")
         }
     }
 
@@ -412,6 +424,130 @@ class FolioWebView : WebView {
                     HighLight.HighLightAction.DELETE
                 )
             }
+        }
+    }
+
+    @JavascriptInterface
+    fun editNote(id: String?) {
+        Log.d(LOG_TAG, "-> editNote")
+
+        if (id.isNullOrEmpty())
+            return
+
+        val highlightImpl = HighLightTable.getHighlightForRangy(id)
+        Log.d("Check highlight", highlightImpl.toString())
+        val activity = parentFragment.activity
+        val optionDialog = AlertDialog.Builder(activity)
+        val option = highlightImpl.noteOption
+        if (option == NoteOption.NONE) {
+            optionDialog.setTitle("Pick a note type")
+                .setItems(
+                    arrayOf<String>("Text", "Draw", "Webview")
+                ) { dialog, option ->
+                    when (option) {
+                        0 -> editNoteText(highlightImpl, 0)
+                        1 -> editNoteDraw(highlightImpl, 0)
+                        2 -> Log.d("Highlight Note", "Webview")
+                        else -> Log.d("Highlight Note", "Webview")
+                    }
+                }
+        } else if (option == NoteOption.TEXT) {
+            optionDialog.setTitle("Pick a note type")
+                .setItems(
+                    arrayOf<String>("Text", "Clear note")
+                ) { dial, option ->
+                    if (option == 0) {
+                        editNoteText(highlightImpl, 0)
+                    } else if (option == 1) {
+                        editNoteClear(highlightImpl, 0)
+                    }
+                }
+        } else {
+            optionDialog.setTitle("Pick a note type")
+                .setItems(
+                    arrayOf<String>("Draw", "Clear note")
+                ) { dial, option ->
+                    if (option == 0) {
+                        editNoteDraw(highlightImpl, 0)
+                    } else if (option == 1) {
+                        editNoteClear(highlightImpl, 0)
+                    }
+                }
+        }
+        optionDialog.create().show()
+    }
+
+    private fun editNoteText(highlightImpl: HighlightImpl, position: Int) {
+        val dialog = parentFragment.getActivity()?.let { Dialog(it, R.style.DialogCustomTheme) }
+        if (dialog != null) {
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            dialog.setContentView(R.layout.dialog_edit_notes)
+            dialog.show()
+            val noteText = highlightImpl.note
+            (dialog.findViewById<View>(R.id.edit_note) as EditText).setText(noteText)
+            dialog.findViewById<View>(R.id.btn_save_note).setOnClickListener {
+                val note =
+                    (dialog.findViewById<View>(R.id.edit_note) as EditText).text.toString()
+                if (!TextUtils.isEmpty(note)) {
+                    highlightImpl.note = note
+                    Log.d("Note", note)
+                    if (HighLightTable.updateHighlight(highlightImpl)) {
+                        HighlightUtil.sendHighlightBroadcastEvent(
+                            parentFragment.getActivity()?.getApplicationContext() ?: null,
+                            highlightImpl,
+                            HighLight.HighLightAction.MODIFY
+                        )
+                    }
+                    dialog.dismiss()
+                } else {
+                    Toast.makeText(
+                        parentFragment.getActivity(),
+                        "Please enter note",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
+
+    private fun editNoteDraw(highlightImpl: HighlightImpl, position: Int) {
+        val intent = Intent(parentFragment.getActivity(), DrawActivity::class.java)
+        val noteText = highlightImpl.note
+        if (noteText != null) {
+            if (noteText.length > 5) {
+                if (noteText.substring(0, 5).compareTo("<img>") == 0) {
+                    val bit = DataTypeConversionUtil.stringToBitmap(noteText.substring(5))
+                    val mPath: String =
+                        parentFragment.getActivity()?.getApplicationContext()?.getExternalFilesDir(null)
+                            .toString() + "/epubviewer/draw.jpg"
+                    val imageFile = File(mPath)
+                    if (!imageFile.exists()) imageFile.parentFile.mkdir()
+                    try {
+                        val outputStream = FileOutputStream(imageFile)
+                        val quality = 100
+                        bit.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
+                        outputStream.flush()
+                        outputStream.close()
+                        intent.putExtra("bitmap", mPath)
+                    } catch (e: Throwable) {
+                        // Several error may come out with file handling or DOM
+                        e.printStackTrace()
+                    }
+                }
+            }
+        }
+        parentFragment.startActivityForResult(intent, 100)
+    }
+
+    private fun editNoteClear(highlightImpl: HighlightImpl, position: Int) {
+        val note: String? = null
+        highlightImpl.note = note
+        if (HighLightTable.updateHighlight(highlightImpl)) {
+            HighlightUtil.sendHighlightBroadcastEvent(
+                parentFragment.getActivity()?.getApplicationContext() ?: null,
+                highlightImpl,
+                HighLight.HighLightAction.MODIFY
+            )
         }
     }
 

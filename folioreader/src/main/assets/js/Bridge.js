@@ -802,6 +802,11 @@ function deleteThisHighlight() {
         FolioWebView.deleteThisHighlight(thisHighlight.id);
 }
 
+function editNote() {
+    if (thisHighlight !== undefined)
+        FolioWebView.editNote(thisHighlight.id);
+}
+
 function onTextSelectionItemClicked(id) {
     var selectionType = window.getSelection().type;
     var selectedText = "";
