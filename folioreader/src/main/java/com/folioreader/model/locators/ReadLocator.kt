@@ -17,6 +17,7 @@ import org.readium.r2.shared.LocatorText
 open class ReadLocator : Locator, Parcelable {
 
     var bookId: String
+    var readPage: Int
 
     @Suppress("unused") // Required for fromJSON()
     constructor() : this("", "", 0, Locations())
@@ -29,6 +30,7 @@ open class ReadLocator : Locator, Parcelable {
         text: LocatorText?
     ) : super(href, created, title, locations, text) {
         this.bookId = bookId
+        this.readPage = 0
     }
 
     constructor(parcel: Parcel) : this(
