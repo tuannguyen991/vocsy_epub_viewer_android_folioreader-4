@@ -20,21 +20,22 @@ open class ReadLocator : Locator, Parcelable {
     var readPage: Int
 
     @Suppress("unused") // Required for fromJSON()
-    constructor() : this("", "", 0, Locations())
+    constructor() : this("", 0, "", 0, Locations())
 
-    constructor(bookId: String, href: String, created: Long, locations: Locations) :
-            this(bookId, href, created, "", locations, null)
+    constructor(bookId: String, readPage: Int, href: String, created: Long, locations: Locations) :
+            this(bookId, readPage, href, created, "", locations, null)
 
     constructor(
-        bookId: String, href: String, created: Long, title: String, locations: Locations,
+        bookId: String, readPage: Int, href: String, created: Long, title: String, locations: Locations,
         text: LocatorText?
     ) : super(href, created, title, locations, text) {
         this.bookId = bookId
-        this.readPage = 0
+        this.readPage = readPage
     }
 
     constructor(parcel: Parcel) : this(
         parcel.readString()!!,
+        parcel.readInt()!!,
         parcel.readString()!!,
         parcel.readLong(),
         parcel.readString()!!,
@@ -44,6 +45,7 @@ open class ReadLocator : Locator, Parcelable {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest?.writeString(bookId)
+        dest?.writeInt(readPage)
         dest?.writeString(href)
         dest?.writeLong(created)
         dest?.writeString(title)
