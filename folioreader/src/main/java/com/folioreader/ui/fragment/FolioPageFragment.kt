@@ -531,6 +531,10 @@ class FolioPageFragment(private var pageViewModel: PageTrackerViewModel) : Fragm
                     val cfi = readLocator.locations.cfi
                     Log.v(LOG_TAG, "-> onPageFinished -> readLocator -> " + cfi!!)
                     mWebview!!.loadUrl(String.format(getString(R.string.callScrollToCfi), cfi))
+
+                    val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE)!!
+                    var readPage = sharedPref.getInt("readPage", 0)
+                    Log.v(LOG_TAG, "-> onPageFinished -> readLocator -> $readPage")
                 } else {
                     loadingView!!.hide()
                 }
