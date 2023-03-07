@@ -12,7 +12,7 @@ import org.readium.r2.shared.Locations
 import org.readium.r2.shared.Locator
 import org.readium.r2.shared.LocatorText
 
-@JsonPropertyOrder("bookId", "href", "created", "locations")
+@JsonPropertyOrder("bookId", "href", "created", "locations", "readPage")
 @JsonIgnoreProperties(ignoreUnknown = true)
 open class ReadLocator : Locator, Parcelable {
 
