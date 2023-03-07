@@ -679,12 +679,15 @@ class FolioPageFragment(private var pageViewModel: PageTrackerViewModel) : Fragm
     fun storeLastReadCfi(cfi: String) {
 
         synchronized(this) {
+            val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE)!!
+            var readPage = sharedPref.getInt("readPage", 0)
+
             var href = spineItem.href
             if (href == null) href = ""
             val created = Date().time
             val locations = Locations()
             locations.cfi = cfi
-            lastReadLocator = ReadLocator(mBookId!!, href, created, locations)
+            lastReadLocator = ReadLocator(mBookId!!, readPage, href, created, locations)
 
             val intent = Intent(FolioReader.ACTION_SAVE_READ_LOCATOR)
             intent.putExtra(FolioReader.EXTRA_READ_LOCATOR, lastReadLocator as Parcelable?)
