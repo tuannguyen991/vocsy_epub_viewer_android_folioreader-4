@@ -397,6 +397,14 @@ class FolioPageFragment(private var pageViewModel: PageTrackerViewModel) : Fragm
 
             override fun onPageSelected(position: Int) {
                 pageViewModel.setCurrentPage(position + 1)
+
+                val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE)!!
+                var readPage = sharedPref.getInt("readPage", 0)
+
+                readPage ++
+                val editor: SharedPreferences.Editor = sharedPref.edit()
+                editor.putInt("readPage", readPage)
+                editor.commit()
             }
 
             override fun onPageScrollStateChanged(state: Int) {
