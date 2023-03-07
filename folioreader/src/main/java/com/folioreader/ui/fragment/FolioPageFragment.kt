@@ -139,6 +139,7 @@ class FolioPageFragment(private var pageViewModel: PageTrackerViewModel) : Fragm
     private lateinit var chapterUrl: Uri
 
     private var currentPg: Int = 0
+    private var isFirst: Boolean = true
 
     //    var pageNo: IntArray = activity!!.intent!!.getIntArrayExtra("pageNo")
     val pageName: String
@@ -751,6 +752,11 @@ class FolioPageFragment(private var pageViewModel: PageTrackerViewModel) : Fragm
     private fun saveReadPage(currentPage: Int) {
         val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE)!!
         var readPage = sharedPref.getInt("readPage", 0)
+
+        if (isFirst) {
+            currentPg = currentPage
+            isFirst = false
+        }
 
         if (currentPg != currentPage) {
             readPage += currentPage - currentPg
