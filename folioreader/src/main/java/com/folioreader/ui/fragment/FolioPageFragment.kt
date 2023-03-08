@@ -2,7 +2,9 @@ package com.folioreader.ui.fragment
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.net.Uri
@@ -135,6 +137,9 @@ class FolioPageFragment(private var pageViewModel: PageTrackerViewModel) : Fragm
     var searchLocatorVisible: SearchLocator? = null
 
     private lateinit var chapterUrl: Uri
+
+    private var currentPg: Int = 0
+    private var isFirst: Boolean = true
 
     //    var pageNo: IntArray = activity!!.intent!!.getIntArrayExtra("pageNo")
     val pageName: String
@@ -383,12 +388,24 @@ class FolioPageFragment(private var pageViewModel: PageTrackerViewModel) : Fragm
         webViewPager = webViewLayout.findViewById(R.id.webViewPager)
 
         webViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+            override fun onPageScrolled(
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
+            ) {
                 // pageViewModel.setCurrentPage(position + 1)
             }
 
             override fun onPageSelected(position: Int) {
                 pageViewModel.setCurrentPage(position + 1)
+
+                val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE)!!
+                var readPage = sharedPref.getInt("readPage", 0)
+
+                readPage ++
+                val editor: SharedPreferences.Editor = sharedPref.edit()
+                editor.putInt("readPage", readPage)
+                editor.commit()
             }
 
             override fun onPageScrollStateChanged(state: Int) {
@@ -515,6 +532,13 @@ class FolioPageFragment(private var pageViewModel: PageTrackerViewModel) : Fragm
                     val cfi = readLocator.locations.cfi
                     Log.v(LOG_TAG, "-> onPageFinished -> readLocator -> " + cfi!!)
                     mWebview!!.loadUrl(String.format(getString(R.string.callScrollToCfi), cfi))
+
+                    Log.v(LOG_TAG, "-> onPageFinished -> readLocator -> ${readLocator.readPage}")
+
+                    val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE)!!
+                    val editor: SharedPreferences.Editor = sharedPref.edit()
+                    editor.putInt("readPage", readLocator.readPage)
+                    editor.commit()
                 } else {
                     loadingView!!.hide()
                 }
@@ -644,6 +668,10 @@ class FolioPageFragment(private var pageViewModel: PageTrackerViewModel) : Fragm
             Log.e(LOG_TAG, "-> ", e)
         }
 
+        val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE)!!
+        lastReadLocator?.readPage = sharedPref.getInt("readPage", 0)
+
+
         return lastReadLocator
     }
 
@@ -651,12 +679,15 @@ class FolioPageFragment(private var pageViewModel: PageTrackerViewModel) : Fragm
     fun storeLastReadCfi(cfi: String) {
 
         synchronized(this) {
+            val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE)!!
+            var readPage = sharedPref.getInt("readPage", 0)
+
             var href = spineItem.href
             if (href == null) href = ""
             val created = Date().time
             val locations = Locations()
             locations.cfi = cfi
-            lastReadLocator = ReadLocator(mBookId!!, href, created, locations)
+            lastReadLocator = ReadLocator(mBookId!!, readPage, href, created, locations)
 
             val intent = Intent(FolioReader.ACTION_SAVE_READ_LOCATOR)
             intent.putExtra(FolioReader.EXTRA_READ_LOCATOR, lastReadLocator as Parcelable?)
@@ -724,14 +755,42 @@ class FolioPageFragment(private var pageViewModel: PageTrackerViewModel) : Fragm
         }
     }
 
+    private fun saveReadPage(currentPage: Int) {
+        val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE)!!
+        var readPage = sharedPref.getInt("readPage", 0)
+
+        if (isFirst) {
+            currentPg = currentPage
+            isFirst = false
+        }
+
+        if (currentPg != currentPage) {
+            readPage += currentPage - currentPg
+            currentPg = currentPage
+        }
+
+        val editor: SharedPreferences.Editor = sharedPref.edit()
+        editor.putInt("readPage", readPage)
+        editor.commit()
+
+        Log.v(WebViewPager.LOG_TAG, "Rick -> currentPg $currentPg")
+        Log.v(WebViewPager.LOG_TAG, "Rick -> totalPage $readPage")
+        Log.v(WebViewPager.LOG_TAG, "Rick -> *******************************")
+    }
+
     private fun updatePagesLeftText(scrollY: Int) {
-//        val intent = getIntent()
-//        val message = intent.getStringExtra("pageNo")
-//        Log.v(WebViewPager.LOG_TAG, "-> message -> $message")
-    /*    try {
-            val currentPage = (ceil(scrollY.toDouble() / mWebview!!.webViewHeight) + 1).toInt()
+        val intent = Intent()
+        val message = intent.getStringExtra("pageNo")
+        Log.v(WebViewPager.LOG_TAG, "-> message -> $message")
+        try {
+            val currentPage =
+                (kotlin.math.ceil(scrollY.toDouble() / mWebview!!.webViewHeight) + 1).toInt()
+
+            saveReadPage(currentPage)
+
             val totalPages =
-                ceil(mWebview!!.contentHeightVal.toDouble() / mWebview!!.webViewHeight).toInt()
+                kotlin.math.ceil(mWebview!!.contentHeightVal.toDouble() / mWebview!!.webViewHeight)
+                    .toInt()
             val pagesRemaining = totalPages - currentPage
             val pagesRemainingStrFormat = if (pagesRemaining > 1)
                 getString(R.string.pages_left)
@@ -743,9 +802,8 @@ class FolioPageFragment(private var pageViewModel: PageTrackerViewModel) : Fragm
             )
 
             val minutesRemaining =
-                ceil((pagesRemaining * mTotalMinutes).toDouble() / totalPages).toInt()
-            val minutesRemainingStr: String
-            minutesRemainingStr = if (minutesRemaining > 1) {
+                kotlin.math.ceil((pagesRemaining * mTotalMinutes).toDouble() / totalPages).toInt()
+            val minutesRemainingStr: String = if (minutesRemaining > 1) {
                 String.format(
                     Locale.US, getString(R.string.minutes_left),
                     minutesRemaining
@@ -765,7 +823,7 @@ class FolioPageFragment(private var pageViewModel: PageTrackerViewModel) : Fragm
             Log.e("divide error", exp.toString())
         } catch (exp: IllegalStateException) {
             Log.e("divide error", exp.toString())
-        }*/
+        }
 
     }
 
