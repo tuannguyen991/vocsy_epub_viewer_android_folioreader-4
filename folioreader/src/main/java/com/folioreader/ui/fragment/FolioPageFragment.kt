@@ -682,6 +682,10 @@ class FolioPageFragment(private var pageViewModel: PageTrackerViewModel) : Fragm
             val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE)!!
             var readPage = sharedPref.getInt("readPage", 0)
 
+            val editor: SharedPreferences.Editor = sharedPref.edit()
+            editor.putInt("readPage", 0)
+            editor.commit()
+
             var href = spineItem.href
             if (href == null) href = ""
             val created = Date().time
