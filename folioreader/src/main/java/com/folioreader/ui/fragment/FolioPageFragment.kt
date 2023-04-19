@@ -695,7 +695,7 @@ class FolioPageFragment(private var pageViewModel: PageTrackerViewModel) : Fragm
             locations.cfi = cfi
             lastReadLocator = ReadLocator(mBookId!!, readPage, href, created, locations)
 
-            Log.v(LOG_TAG, "abc: $lastReadLocator")
+            Log.v(LOG_TAG, "abc: " + lastReadLocator!!.toJson())
 
             val intent = Intent(FolioReader.ACTION_SAVE_READ_LOCATOR)
             intent.putExtra(FolioReader.EXTRA_READ_LOCATOR, lastReadLocator as Parcelable?)
