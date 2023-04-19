@@ -686,6 +686,8 @@ class FolioPageFragment(private var pageViewModel: PageTrackerViewModel) : Fragm
             editor.putInt("readPage", 0)
             editor.commit()
 
+            Log.v(LOG_TAG, "abc: $readPage")
+
             var href = spineItem.href
             if (href == null) href = ""
             val created = Date().time
