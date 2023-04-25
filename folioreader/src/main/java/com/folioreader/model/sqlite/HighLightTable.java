@@ -115,6 +115,10 @@ public class HighLightTable {
         return DbAdapter.deleteById(TABLE_NAME, ID, String.valueOf(highlightId));
     }
 
+    public static boolean deleteAll() {
+        return DbAdapter.deleteAll(TABLE_NAME);
+    }
+
     public static List<String> getHighlightsForPageId(String pageId) {
         String query = "SELECT " + COL_RANGY + " FROM " + TABLE_NAME + " WHERE " + COL_PAGE_ID + " = \"" + pageId + "\"";
         Cursor c = DbAdapter.getHighlightsForPageId(query, pageId);

@@ -33,7 +33,7 @@ public class DbAdapter {
         return mDatabase.rawQuery("SELECT * FROM " + HighLightTable.TABLE_NAME + " WHERE " + HighLightTable.COL_BOOK_ID + " = \"" + bookId + "\"", null);
     }
 
-    public boolean deleteAll(String table) {
+    public static boolean deleteAll(String table) {
         return mDatabase.delete(table, null, null) > 0;
     }
 
