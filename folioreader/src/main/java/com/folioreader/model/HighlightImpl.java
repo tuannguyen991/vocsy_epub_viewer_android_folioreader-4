@@ -259,15 +259,15 @@ public class HighlightImpl implements Parcelable, HighLight {
     public String toString() {
         return "HighlightImpl{" +
                 "\"id\":" + id +
-                ", \"bookId\":'" + bookId + '\'' +
-                ", \"content\":'" + content + '\'' +
+                ", \"bookId\":\"" + bookId + '"' +
+                ", \"content\":\"" + content + '"' +
                 ", \"date\":" + (date != null ? date.getTime(): null) +
-                ", \"type\":'" + type + '\'' +
+                ", \"type\":\"" + type + '"' +
                 ", \"pageNumber\":" + pageNumber +
-                ", \"pageId\":'" + pageId + '\'' +
-                ", \"rangy\":'" + rangy + '\'' +
-                ", \"note\":'" + note + '\'' +
-                ", \"uuid\":'" + uuid + '\'' +
+                ", \"pageId\":\"" + pageId + '"' +
+                ", \"rangy\":\"" + rangy + '"' +
+                ", \"note\":" + (note != null ? ('"' + note + '"') : null) +
+                ", \"uuid\":\"" + uuid + '"' +
                 '}';
     }
 
