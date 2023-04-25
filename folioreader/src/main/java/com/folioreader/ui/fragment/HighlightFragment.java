@@ -101,12 +101,12 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
     }
 
     @Override
-    public void deleteHighlight(int id) {
+    public void deleteHighlight(int id, String uuid) {
         if (HighLightTable.deleteHighlight(id)) {
             EventBus.getDefault().post(new UpdateHighlightEvent());
             HighlightUtil.sendHighlightBroadcastEvent(
                     HighlightFragment.this.getActivity().getApplicationContext(),
-                    new HighlightImpl(id),
+                    new HighlightImpl(uuid),
                     HighLight.HighLightAction.DELETE);
         }
     }

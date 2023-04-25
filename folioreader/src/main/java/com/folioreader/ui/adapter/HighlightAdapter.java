@@ -76,7 +76,7 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
         holder.delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                callback.deleteHighlight(getItem(position).getId());
+                callback.deleteHighlight(getItem(position).getId(), getItem(position).getUUID());
                 highlights.remove(position);
                 notifyDataSetChanged();
 
@@ -219,7 +219,7 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
     public interface HighLightAdapterCallback {
         void onItemClick(HighlightImpl highlightImpl);
 
-        void deleteHighlight(int id);
+        void deleteHighlight(int id, String uuid);
 
         void editNote(HighlightImpl highlightImpl, int position);
     }

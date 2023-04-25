@@ -129,6 +129,10 @@ public class HighlightImpl implements Parcelable, HighLight {
     public HighlightImpl(int id) {
     }
 
+    public HighlightImpl(String uuid) {
+        this.uuid = uuid;
+    }
+
     protected HighlightImpl(Parcel in) {
         readFromParcel(in);
     }
