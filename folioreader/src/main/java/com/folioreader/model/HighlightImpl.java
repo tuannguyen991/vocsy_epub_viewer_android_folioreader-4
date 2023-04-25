@@ -257,7 +257,7 @@ public class HighlightImpl implements Parcelable, HighLight {
                 "id=" + id +
                 ", bookId='" + bookId + '\'' +
                 ", content='" + content + '\'' +
-                ", date=" + date +
+                ", date=" + date.getTime() +
                 ", type='" + type + '\'' +
                 ", pageNumber=" + pageNumber +
                 ", pageId='" + pageId + '\'' +
