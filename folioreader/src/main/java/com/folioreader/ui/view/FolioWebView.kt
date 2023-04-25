@@ -393,10 +393,12 @@ class FolioWebView : WebView {
             return
 
         val highlightImpl = HighLightTable.getHighlightForRangy(id)
+        val uuid = highlightImpl.uuid;
         if (HighLightTable.deleteHighlight(id)) {
             val rangy = HighlightUtil.generateRangyString(parentFragment.pageName)
             uiHandler.post { parentFragment.loadRangy(rangy) }
             if (highlightImpl != null) {
+                highlightImpl.uuid = uuid;
                 HighlightUtil.sendHighlightBroadcastEvent(
                     context, highlightImpl,
                     HighLight.HighLightAction.DELETE
