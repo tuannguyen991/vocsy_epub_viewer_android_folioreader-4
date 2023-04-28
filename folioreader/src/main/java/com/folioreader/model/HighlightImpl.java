@@ -129,6 +129,10 @@ public class HighlightImpl implements Parcelable, HighLight {
     public HighlightImpl(int id) {
     }
 
+    public HighlightImpl(String uuid) {
+        this.uuid = uuid;
+    }
+
     protected HighlightImpl(Parcel in) {
         readFromParcel(in);
     }
@@ -254,16 +258,16 @@ public class HighlightImpl implements Parcelable, HighLight {
     @Override
     public String toString() {
         return "HighlightImpl{" +
-                "id=" + id +
-                ", bookId='" + bookId + '\'' +
-                ", content='" + content + '\'' +
-                ", date=" + date +
-                ", type='" + type + '\'' +
-                ", pageNumber=" + pageNumber +
-                ", pageId='" + pageId + '\'' +
-                ", rangy='" + rangy + '\'' +
-                ", note='" + note + '\'' +
-                ", uuid='" + uuid + '\'' +
+                "\"id\":" + id +
+                ", \"bookId\":\"" + bookId + '"' +
+                ", \"content\":\"" + content + '"' +
+                ", \"date\":" + (date != null ? date.getTime(): null) +
+                ", \"type\":\"" + type + '"' +
+                ", \"pageNumber\":" + pageNumber +
+                ", \"pageId\":\"" + pageId + '"' +
+                ", \"rangy\":\"" + rangy + '"' +
+                ", \"note\":" + (note != null ? ('"' + note + '"') : null) +
+                ", \"uuid\":\"" + uuid + '"' +
                 '}';
     }
 
