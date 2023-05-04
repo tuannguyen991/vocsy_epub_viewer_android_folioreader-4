@@ -479,11 +479,6 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
                 dialog.setContentView(R.layout.dialog_bookmark)
                 dialog.show()
                 dialog.setCanceledOnTouchOutside(true)
-                dialog.setOnCancelListener {
-                    Toast.makeText(
-                        this, "please enter a Bookmark name and then press Save", Toast.LENGTH_SHORT
-                    ).show()
-                }
                 dialog.findViewById<View>(R.id.btn_save_bookmark).setOnClickListener {
                     val name =
                         (dialog.findViewById<View>(R.id.bookmark_name) as EditText).text.toString()
@@ -501,11 +496,10 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
                     } else {
                         Toast.makeText(
                             this,
-                            "please Enter a Bookmark name and then press Save",
+                            "Vui lòng nhập tên Bookmark",
                             Toast.LENGTH_SHORT
                         ).show()
                     }
-                    dialog.dismiss()
                 }
 
 

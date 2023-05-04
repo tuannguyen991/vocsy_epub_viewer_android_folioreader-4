@@ -13,10 +13,10 @@
     <item
         android:id="@+id/save_button"
         app:showAsAction="never"
-        android:title="Save" />
+        android:title="Lưu" />
     <item
         android:id="@+id/clear_button"
         app:showAsAction="never"
-        android:title="Clear" />
+        android:title="Xoá" />
 
 </menu>

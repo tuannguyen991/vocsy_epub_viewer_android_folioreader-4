@@ -189,18 +189,18 @@ public class HomeActivity extends AppCompatActivity
         switch (type){
             case NEW:
                 Toast.makeText(this,
-                        "Create highlight successfully!",
+                        "Tạo highlight thành công!",
                         Toast.LENGTH_SHORT).show();
                 break;
             case MODIFY:
                 Toast.makeText(this,
-                        "Modify highlight successfully!",
+                        "Chỉnh sửa highlight thành công!",
                         Toast.LENGTH_SHORT).show();
                 break;
             case DELETE:
             default:
                 Toast.makeText(this,
-                        "Delete highlight successfully!",
+                        "Xoá highlight thành công!",
                         Toast.LENGTH_SHORT).show();
                 break;
         }

@@ -118,8 +118,8 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
         final AlertDialog.Builder optionDialog = new AlertDialog.Builder(getActivity());
         HighLight.NoteOption option = highlightImpl.getNoteOption();
         if (option == HighLight.NoteOption.NONE) {
-            optionDialog.setTitle("Pick a note type")
-                    .setItems(new String[]{"Text", "Draw", "Webview"}, new DialogInterface.OnClickListener() {
+            optionDialog.setTitle("Chọn loại ghi chú")
+                    .setItems(new String[]{"Văn bản", "Hình vẽ", "Webview"}, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int option) {
                             switch (option){
                                 case 0:
@@ -136,8 +136,8 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
                     });
         }
         else if (option == HighLight.NoteOption.TEXT) {
-            optionDialog.setTitle("Pick a note type")
-                    .setItems(new String[]{"Text", "Clear note"}, new DialogInterface.OnClickListener() {
+            optionDialog.setTitle("Chọn loại ghi chú")
+                    .setItems(new String[]{"Văn bản", "Xoá ghi chú"}, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dial, int option) {
                             if (option == 0) {
                                 editNoteText(highlightImpl, position);
@@ -149,8 +149,8 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
                     });
         }
         else {
-            optionDialog.setTitle("Pick a note type")
-                    .setItems(new String[]{"Draw", "Clear note"}, new DialogInterface.OnClickListener() {
+            optionDialog.setTitle("Chọn loại ghi chú")
+                    .setItems(new String[]{"Hình vẽ", "Xoá ghi chú"}, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dial, int option) {
                             if (option == 0) {
                                 editNoteDraw(highlightImpl, position);

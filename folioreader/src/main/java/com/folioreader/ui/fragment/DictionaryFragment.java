@@ -217,7 +217,7 @@ public class DictionaryFragment extends DialogFragment
         if (dictionary.getResults().isEmpty()) {
             noNetwork.setVisibility(View.VISIBLE);
             btnGoogleSearch.setVisibility(View.VISIBLE);
-            noNetwork.setText("Word not found");
+            noNetwork.setText("Không có kết quả phù hợp!");
         } else {
             mAdapter.setResults(dictionary.getResults());
             dictResults.setAdapter(mAdapter);

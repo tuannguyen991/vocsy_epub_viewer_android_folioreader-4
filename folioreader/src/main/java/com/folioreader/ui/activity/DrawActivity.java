@@ -48,7 +48,7 @@ public class DrawActivity extends AppCompatActivity {
 
         paintView.initialise(displayMetrics, getIntent().getStringExtra("bitmap"));
 
-        textView.setText("Pen size: " + seekBar.getProgress());
+        textView.setText("Kích thước bút: " + seekBar.getProgress());
 
         button.setOnClickListener(new View.OnClickListener() {
 
@@ -67,7 +67,7 @@ public class DrawActivity extends AppCompatActivity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
                 paintView.setStrokeWidth(seekBar.getProgress());
-                textView.setText("Pen size: " + seekBar.getProgress());
+                textView.setText("Kích thước bút: " + seekBar.getProgress());
 
             }
 
@@ -186,7 +186,7 @@ public class DrawActivity extends AppCompatActivity {
             @Override
             public void onCancel(AmbilWarnaDialog dialog) {
 
-                Toast.makeText(DrawActivity.this, "Unavailable", Toast.LENGTH_LONG).show();
+                //Toast.makeText(DrawActivity.this, "Unavailable", Toast.LENGTH_LONG).show();
 
             }
 
